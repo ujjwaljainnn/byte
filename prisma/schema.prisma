@@ -11,11 +11,48 @@ model User {
   id    String @id @default(cuid())
   email String @unique
 
+  first_name String?
+  last_name  String?
+  bio        String?
+  profilePic String?
+
+  standing    StudentStanding @default(FRESHMAN)
+  accountType UserType        @default(STUDENT)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   password Password?
   notes    Note[]
+
+  reviews_given    Reviews[] @relation(name: "Reviewer")
+  reviews_received Reviews[] @relation(name: "Reviewee")
+
+  meetups   MeetupInfo[]
+  interests Interests[]
+
+  Restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId String?
+}
+
+model Reviews {
+  id      String  @id @default(cuid())
+  title   String
+  feeback String?
+
+  meetup   MeetupInfo @relation(fields: [meetupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  meetupId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviewer   User   @relation(name: "Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  reviewerId String
+
+  reviewee   User   @relation(name: "Reviewee", fields: [revieweeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  revieweeId String
+
+  rating Int
 }
 
 model Password {
@@ -35,4 +72,64 @@ model Note {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+}
+
+model MeetupInfo {
+  id String @id @default(cuid())
+
+  time   DateTime
+  status MeetupStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users   User[]
+  Reviews Reviews[]
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  restaurantId String
+}
+
+model Interests {
+  id String @id @default(cuid())
+
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+}
+
+model Restaurant {
+  id String @id @default(cuid())
+
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  meetups MeetupInfo[]
+
+  users User[]
+}
+
+enum StudentStanding {
+  FRESHMAN
+  SOPHOMORE
+  JUNIOR
+  SENIOR
+  GRADUATE
+  ALUMNI
+}
+
+enum UserType {
+  STUDENT
+  ADMIN
+}
+
+enum MeetupStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
