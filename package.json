@@ -29,6 +29,9 @@
     "/public/build"
   ],
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.11.6",
     "@prisma/client": "^4.9.0",
     "@remix-run/node": "^1.11.0",
     "@remix-run/react": "^1.11.0",
@@ -38,6 +41,7 @@
     "isbot": "^3.6.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-toastify": "^9.1.1",
     "tiny-invariant": "^1.3.1"
   },
   "devDependencies": {
