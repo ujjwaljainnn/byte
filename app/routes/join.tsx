@@ -83,6 +83,8 @@ export const meta: MetaFunction = () => {
   };
 };
 
+
+
 export default function Join() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
@@ -94,6 +96,7 @@ export default function Join() {
   const [restaurants, setRestaurants] = React.useState<string[]>([]);
 
   useEffect(() => {
+    <><script src="https://apis.google.com/js/platform.js" async defer></script><meta name="google-signin-client_id" content="472138141967-ekgg6rnmk2jkbt4690g1sbon8c4hulc2.apps.googleusercontent.com"></meta></>
     if (actionData?.errors) {
       toast.warn(`${Object.values(actionData.errors).join(" ")}`);
     }
@@ -101,6 +104,7 @@ export default function Join() {
 
   return (
     <Container component="main" maxWidth="xs">
+      <div className="g-signin2" data-width="300" data-height="200" data-longtitle="true"></div>
       <Box
         sx={{
           marginTop: 8,
