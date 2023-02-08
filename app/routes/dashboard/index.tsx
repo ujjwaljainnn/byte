@@ -45,7 +45,7 @@ export const loader = async ({ request }: any) => {
   }
 
   return {
-    user,
+    userExists,
   };
 };
 
