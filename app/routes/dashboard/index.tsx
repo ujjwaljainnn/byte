@@ -44,8 +44,6 @@ export const loader = async ({ request }: any) => {
     });
   }
 
-  console.log("fuck", userExists);
-
   return {
     userExists,
   };
