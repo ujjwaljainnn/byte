@@ -28,7 +28,7 @@ const BUTTON_STYLES = {
 export const loader = async ({ request }: any) => {
   // authenticator.isAuthenticated function returns the user object if found
   // if user is not authenticated then user would be redirected back to homepage ("/" route)
-  let user = await authenticator.isAuthenticated(request, {
+  const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/",
   });
 
