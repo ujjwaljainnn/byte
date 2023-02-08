@@ -28,7 +28,7 @@ const BUTTON_STYLES = {
 export const loader = async ({ request }: any) => {
   // authenticator.isAuthenticated function returns the user object if found
   // if user is not authenticated then user would be redirected back to homepage ("/" route)
-  const user = await authenticator.isAuthenticated(request, {
+  let user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/",
   });
 
@@ -44,6 +44,8 @@ export const loader = async ({ request }: any) => {
     });
   }
 
+  console.log("fuck", userExists);
+
   return {
     userExists,
   };
@@ -51,13 +53,13 @@ export const loader = async ({ request }: any) => {
 
 const Dashboard = () => {
   // getting user from loader data
-  const { user } = useLoaderData();
+  const { userExists } = useLoaderData();
 
   // displaying authenticated user data
   return (
     <div style={CONTAINER_STYLES}>
       <h1>You are LoggedIn</h1>
-      <p>{user.displayName}</p>
+      <h2>{userExists.email}</h2>
       <Form action="/logout" method="post">
         <button style={BUTTON_STYLES}>Logout</button>
       </Form>
