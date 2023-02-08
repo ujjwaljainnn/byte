@@ -37,7 +37,7 @@ export const loader = async ({ request }: any) => {
 
   if (!userExists) {
     // send to set password page
-    return redirect("/setpassword", {
+    return redirect("/join/setpassword", {
       headers: {
         email: user?._json.email,
       },

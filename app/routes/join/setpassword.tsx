@@ -35,11 +35,11 @@ export const loader = async ({ request }: any) => {
 };
 
 export async function action({ request }: ActionArgs) {
-  const formData = await request.formData();
-
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/",
   });
+
+  const formData = await request.formData();
 
   const password = formData.get("password");
   const confirmPassword = formData.get("confirmPassword");
