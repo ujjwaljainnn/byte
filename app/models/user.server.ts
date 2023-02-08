@@ -60,3 +60,13 @@ export async function verifyLogin(
 
   return userWithoutPassword;
 }
+
+export async function findOrCreateUser(email: User["email"], password: string) {
+  const user = await getUserByEmail(email);
+
+  if (user) {
+    return user;
+  }
+
+  return createUser(email, password);
+}
