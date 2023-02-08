@@ -45,19 +45,19 @@ export const loader = async ({ request }: any) => {
   }
 
   return {
-    user,
+    userExists,
   };
 };
 
 const Dashboard = () => {
   // getting user from loader data
-  const { user } = useLoaderData();
+  const { userExists } = useLoaderData();
 
   // displaying authenticated user data
   return (
     <div style={CONTAINER_STYLES}>
       <h1>You are LoggedIn</h1>
-      <p>{user.displayName}</p>
+      <h2>{userExists.email}</h2>
       <Form action="/logout" method="post">
         <button style={BUTTON_STYLES}>Logout</button>
       </Form>
