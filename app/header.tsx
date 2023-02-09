@@ -14,12 +14,7 @@ import { getUserByEmail } from "./models/user.server";
 
 // make loader function
 export const loader = async ({ request }: any) => {
-  let user = await authenticator.isAuthenticated(request);
-
-  console.log("Fuck", user);
-
   user = await getUserByEmail(user._json.email || "");
-
   return {
     user,
   };
