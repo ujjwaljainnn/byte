@@ -64,7 +64,7 @@ export const meta: MetaFunction = () => {
   };
 };
 
-function ErrorMessage({
+export function ErrorMessage({
   error,
   subError,
 }: {

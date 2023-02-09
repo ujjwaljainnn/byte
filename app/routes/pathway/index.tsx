@@ -8,6 +8,12 @@ export const loader = async ({ request }: any) => {
     failureRedirect: "/",
   });
 
+  if (/@vanderbilt.edu\s*$/.test(googleAuthUser._json.email) === false) {
+    return authenticator.logout(request, {
+      redirectTo: "/join?error=notVanderbiltEmail",
+    });
+  }
+
   const user = await getUserByEmail(googleAuthUser._json.email);
 
   if (!user) {

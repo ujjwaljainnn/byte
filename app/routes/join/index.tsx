@@ -1,11 +1,14 @@
 // file: app/routes/index.js
 
-import { Form } from "@remix-run/react";
+import { Box, Container, Grid } from "@mui/material";
+import { Form, useSearchParams } from "@remix-run/react";
 import { SocialsProvider } from "remix-auth-socials";
+
+import { ErrorMessage } from "../login";
 
 const CONTAINER_STYLES = {
   width: "100%",
-  height: "100vh",
+  height: "50vh",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -22,13 +25,28 @@ const BUTTON_STYLES = {
 };
 
 export default function Join() {
+  const [searchParams] = useSearchParams();
   return (
-    <Form
-      method="post"
-      action={`/auth/${SocialsProvider.GOOGLE}`}
-      style={CONTAINER_STYLES}
-    >
-      <button style={BUTTON_STYLES}>Login with Google</button>
-    </Form>
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+        }}
+      >
+        {searchParams.get("error") === "notVanderbiltEmail" && (
+          <ErrorMessage
+            error="Invalid email! Only Vanderbilt emails accepted."
+            subError="Please register using Vanderbilt email."
+          />
+        )}
+        <Form
+          method="post"
+          action={`/auth/${SocialsProvider.GOOGLE}`}
+          style={CONTAINER_STYLES}
+        >
+          <button style={BUTTON_STYLES}>Login with Google</button>
+        </Form>
+      </Box>
+    </Container>
   );
 }
