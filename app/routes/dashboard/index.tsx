@@ -1,10 +1,9 @@
 // file: app/routes/dashboard.js
 
 import { Form, useLoaderData } from "@remix-run/react";
-import { redirect } from "@remix-run/server-runtime";
-
 import { authenticator } from "app/services/auth.server";
-import { getUserByEmail } from "~/models/user.server";
+import { getUserById } from "~/models/user.server";
+import { getUserId } from "~/session.server";
 
 const CONTAINER_STYLES = {
   width: "100%",
@@ -26,38 +25,33 @@ const BUTTON_STYLES = {
 };
 
 export const loader = async ({ request }: any) => {
-  // authenticator.isAuthenticated function returns the user object if found
-  // if user is not authenticated then user would be redirected back to homepage ("/" route)
-  const user = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/",
-  });
+  // fetch user id from session
+  const userId = await getUserId(request);
 
-  // check if user email exists in database
-  const userExists = await getUserByEmail(user?._json.email);
-
-  if (!userExists) {
-    // send to set password page
-    return redirect("/join/setpassword", {
-      headers: {
-        email: user?._json.email,
-      },
+  if (!userId) {
+    // if no, redirect to login
+    return authenticator.logout(request, {
+      redirectTo: "/login?email_already_exists=true",
     });
   }
 
+  // fetch user data from database
+  const user = await getUserById(userId);
+
   return {
-    userExists,
+    user,
   };
 };
 
 const Dashboard = () => {
   // getting user from loader data
-  const { userExists } = useLoaderData();
+  const { user } = useLoaderData();
 
   // displaying authenticated user data
   return (
     <div style={CONTAINER_STYLES}>
       <h1>You are LoggedIn</h1>
-      <h2>{userExists.email}</h2>
+      <h2>{user.email}</h2>
       <Form action="/logout" method="post">
         <button style={BUTTON_STYLES}>Logout</button>
       </Form>

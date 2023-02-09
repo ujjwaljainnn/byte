@@ -17,7 +17,7 @@ export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/notes");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/dashboard");
   const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
@@ -64,9 +64,45 @@ export const meta: MetaFunction = () => {
   };
 };
 
+function ErrorMessage({
+  error,
+  subError,
+}: {
+  error: string;
+  subError: string;
+}) {
+  return (
+    <div
+      className="relative mb-5 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+      role="alert"
+    >
+      <strong className="font-bold">{error}</strong>
+      <span className="block sm:inline"> {subError}</span>
+    </div>
+  );
+}
+
+function SuccessMessage({
+  message,
+  subMessage,
+}: {
+  message: string;
+  subMessage: string;
+}) {
+  return (
+    <div
+      className="relative mb-5 rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700"
+      role="alert"
+    >
+      <strong className="font-bold">{message}</strong>
+      <span className="block sm:inline">{subMessage}</span>
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/notes";
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
   const actionData = useActionData<typeof action>();
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
@@ -82,6 +118,20 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
+        {searchParams.get("email_already_exists") && (
+          <ErrorMessage
+            error="Email already exists!"
+            subError="Please login instead."
+          />
+        )}
+
+        {searchParams.get("account_created_successfully") && (
+          <SuccessMessage
+            message="Account created successfully!"
+            subMessage="Please login."
+          />
+        )}
+
         <Form method="post" className="space-y-6">
           <div>
             <label
