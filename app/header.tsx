@@ -79,6 +79,7 @@ const LoggedInHeaderItems = ({ user }: { user: User }) => {
 const LoggedOutHeaderItems = () => {
   return (
     <>
+      <HeaderItem title="About" link="/about" />
       <HeaderItem title="Register" link="/join" />
       <HeaderItem title="Login" link="/login" />
     </>
