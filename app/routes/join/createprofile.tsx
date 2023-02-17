@@ -2,15 +2,18 @@ import { authenticator } from "~/services/auth.server";
 
 import React, { useEffect, useState } from "react";
 
-import { createUser, findOrCreateUser } from "~/models/user.server";
+import { createUser } from "~/models/user.server";
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   capitalize,
+  Checkbox,
   Collapse,
   Container,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   MenuItem,
@@ -18,19 +21,33 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ActionArgs, json, redirect } from "@remix-run/server-runtime";
+import { ActionArgs, json } from "@remix-run/server-runtime";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import CloseIcon from "@mui/icons-material/Close";
 import { StudentStanding } from "@prisma/client";
-import { createUserSession } from "~/session.server";
+import { useSubmit } from "@remix-run/react";
+import {
+  getAllInterests,
+  updateUserInterests,
+} from "~/models/interests.server";
+import {
+  getAllRestaurants,
+  updateUserRestaurants,
+} from "~/models/restaurants.server";
 
 export const loader = async ({ request }: any) => {
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/",
   });
 
+  const interests = await getAllInterests();
+
+  const restaurants = await getAllRestaurants();
+
   return {
     user,
+    interests,
+    restaurants,
   };
 };
 
@@ -47,6 +64,8 @@ export async function action({ request }: ActionArgs) {
   const confirmPassword = formData.get("confirmPassword");
   const bio = formData.get("bio");
   const standing = formData.get("standing");
+  const interests = formData.getAll("interests");
+  const restaurants = JSON.parse(formData.get("restaurants"));
 
   if (typeof firstName !== "string" || firstName.length === 0) {
     return json(
@@ -83,6 +102,9 @@ export async function action({ request }: ActionArgs) {
     );
   }
 
+  const restaurantIds = restaurants.map((restaurant: any) => restaurant.id);
+  const interestIds = interests.map((interest) => interest.toString());
+
   const newUser = await createUser({
     email: user._json.email,
     password: password,
@@ -93,6 +115,9 @@ export async function action({ request }: ActionArgs) {
   });
 
   if (newUser) {
+    await updateUserInterests(newUser.id, interestIds);
+    await updateUserRestaurants(newUser.id, restaurantIds);
+
     return authenticator.logout(request, {
       redirectTo: "/login?account_created_successfully=true",
     });
@@ -125,11 +150,14 @@ function StandingSelect() {
 }
 
 export default function CreateProfile() {
-  const { user } = useLoaderData();
+  const { user, interests, restaurants } = useLoaderData();
 
   const actionData = useActionData<typeof action>();
   const [open, setOpen] = React.useState(false);
   const [errors, setErrors] = useState("");
+  const [restaurantsList, setRestaurantsList] = useState({});
+
+  const submit = useSubmit();
 
   useEffect(() => {
     if (actionData?.errors) {
@@ -148,12 +176,23 @@ export default function CreateProfile() {
           alignItems: "center",
         }}
       >
-        <Typography component="h1" variant="h5">
-          Complete your profile for {user._json.email}
-        </Typography>
-        <Form method="post">
+        <Form
+          method="post"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            formData.append("restaurants", JSON.stringify(restaurantsList));
+            submit(formData, { method: "post", replace: true });
+          }}
+        >
           <Box sx={{ mt: 3 }}>
             <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography component="h5" variant="h5">
+                  Personal Information
+                </Typography>
+              </Grid>
+
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="given-name"
@@ -211,6 +250,55 @@ export default function CreateProfile() {
               </Grid>
               <Grid item xs={12}>
                 <StandingSelect />
+              </Grid>
+            </Grid>
+          </Box>
+          <Box sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography component="h5" variant="h5">
+                  Preferences
+                </Typography>
+              </Grid>
+
+              {interests.map((interest: any) => (
+                <Grid item xs={12} key={interest.id}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        name="interests"
+                        color="primary"
+                        defaultChecked={false}
+                        value={interest.id}
+                      />
+                    }
+                    label={interest.name}
+                  />
+                </Grid>
+              ))}
+
+              <Grid item xs={12}>
+                <Autocomplete
+                  options={restaurants.map((restaurant: any) => {
+                    return {
+                      id: restaurant.id,
+                      name: restaurant.name,
+                    };
+                  })}
+                  multiple
+                  onChange={(e: any, value: any) => {
+                    setRestaurantsList(value);
+                  }}
+                  getOptionLabel={(option) => option.name}
+                  style={{ width: 300 }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select restaurants you like"
+                      variant="outlined"
+                    />
+                  )}
+                />
               </Grid>
             </Grid>
 
