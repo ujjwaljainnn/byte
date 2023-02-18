@@ -102,8 +102,15 @@ export async function action({ request }: ActionArgs) {
     );
   }
 
+  console.log("restaurants", restaurants);
+
   const restaurantIds = restaurants.map((restaurant: any) => restaurant.id);
   const interestIds = interests.map((interest) => interest.toString());
+
+  console.log("interestIds", interestIds);
+  console.log("restaurantIds", restaurantIds);
+
+  // return json({});
 
   const newUser = await createUser({
     email: user._json.email,
@@ -279,15 +286,10 @@ export default function CreateProfile() {
 
               <Grid item xs={12}>
                 <Autocomplete
-                  options={restaurants.map((restaurant: any) => {
-                    return {
-                      id: restaurant.id,
-                      name: restaurant.name,
-                    };
-                  })}
+                  options={restaurants}
                   multiple
-                  onChange={(e: any, value: any) => {
-                    setRestaurantsList(value);
+                  onChange={(event, newValue) => {
+                    setRestaurantsList(newValue);
                   }}
                   getOptionLabel={(option) => option.name}
                   style={{ width: 300 }}

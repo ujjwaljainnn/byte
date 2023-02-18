@@ -19,3 +19,7 @@ export async function updateUserRestaurants(
     data: { restaurants: { connect: restaurants.map((id) => ({ id })) } },
   });
 }
+
+export async function getUserRestaurants(id: User["id"]) {
+  return prisma.user.findUnique({ where: { id } }).restaurants();
+}
