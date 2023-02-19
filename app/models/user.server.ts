@@ -91,3 +91,19 @@ export async function findOrCreateUser(email: User["email"], password: string) {
 
   return createUser(email, password);
 }
+
+export async function updateUser(
+  id: User["id"],
+  data: {
+    first_name?: User["first_name"];
+    last_name?: User["last_name"];
+    bio?: User["bio"];
+    standing?: User["standing"];
+    profilePic?: User["profilePic"];
+  }
+) {
+  return prisma.user.update({
+    where: { id },
+    data,
+  });
+}

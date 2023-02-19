@@ -56,7 +56,10 @@ const LogOutButton = () => {
   );
 };
 
-const HEADER_ITEMS = [{ title: "Dashboard", link: "/dashboard" }];
+const HEADER_ITEMS = [
+  { title: "Dashboard", link: "/dashboard" },
+  { title: "Profile", link: "/profile" },
+];
 
 const LoggedInHeaderItems = ({ user }: { user: User }) => {
   return (

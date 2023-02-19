@@ -28,11 +28,11 @@ import { StudentStanding } from "@prisma/client";
 import { useSubmit } from "@remix-run/react";
 import {
   getAllInterests,
-  updateUserInterests,
+  createUserInterests,
 } from "~/models/interests.server";
 import {
   getAllRestaurants,
-  updateUserRestaurants,
+  createUserRestaurantPreferences,
 } from "~/models/restaurants.server";
 
 export const loader = async ({ request }: any) => {
@@ -102,8 +102,15 @@ export async function action({ request }: ActionArgs) {
     );
   }
 
+  console.log("restaurants", restaurants);
+
   const restaurantIds = restaurants.map((restaurant: any) => restaurant.id);
   const interestIds = interests.map((interest) => interest.toString());
+
+  console.log("interestIds", interestIds);
+  console.log("restaurantIds", restaurantIds);
+
+  // return json({});
 
   const newUser = await createUser({
     email: user._json.email,
@@ -115,8 +122,8 @@ export async function action({ request }: ActionArgs) {
   });
 
   if (newUser) {
-    await updateUserInterests(newUser.id, interestIds);
-    await updateUserRestaurants(newUser.id, restaurantIds);
+    await createUserInterests(newUser.id, interestIds);
+    await createUserRestaurantPreferences(newUser.id, restaurantIds);
 
     return authenticator.logout(request, {
       redirectTo: "/login?account_created_successfully=true",
@@ -279,15 +286,10 @@ export default function CreateProfile() {
 
               <Grid item xs={12}>
                 <Autocomplete
-                  options={restaurants.map((restaurant: any) => {
-                    return {
-                      id: restaurant.id,
-                      name: restaurant.name,
-                    };
-                  })}
+                  options={restaurants}
                   multiple
-                  onChange={(e: any, value: any) => {
-                    setRestaurantsList(value);
+                  onChange={(event, newValue) => {
+                    setRestaurantsList(newValue);
                   }}
                   getOptionLabel={(option) => option.name}
                   style={{ width: 300 }}
