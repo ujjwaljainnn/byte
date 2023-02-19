@@ -1,28 +1,12 @@
 // file: app/routes/dashboard.js
 
-import { Form, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { authenticator } from "app/services/auth.server";
+import { Box, Container, Typography } from "@mui/material";
 import { getUserById } from "~/models/user.server";
 import { getUserId } from "~/session.server";
 
-const CONTAINER_STYLES = {
-  width: "100%",
-  height: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  flexDirection: "column",
-};
-
-const BUTTON_STYLES = {
-  padding: "15px 25px",
-  background: "#dd4b39",
-  border: "0",
-  outline: "none",
-  cursor: "pointer",
-  color: "white",
-  fontWeight: "bold",
-};
+import React, { useState } from "react";
 
 export const loader = async ({ request }: any) => {
   // fetch user id from session
@@ -47,15 +31,53 @@ const Dashboard = () => {
   // getting user from loader data
   const { user } = useLoaderData();
 
-  // displaying authenticated user data
+  // make a timer that shows time to upcoming Sunday 6:00 PM in hours and minutes
+  const now = new Date();
+  const nextSunday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + ((7 - now.getDay()) % 7),
+    12,
+    0,
+    0
+  );
+
+  // make a state variable that holds the time to next Sunday 6:00 PM in days, hours, minutes and seconds
+  const [timeToNextSunday, setTimeToNextSunday] = useState(
+    Math.floor((nextSunday.getTime() - now.getTime()) / 1000)
+  );
+
+  // useEffect to update the timeToNextSunday state variable every second
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeToNextSunday((prevTime) => prevTime - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timeToNextSunday]);
+
   return (
-    <div style={CONTAINER_STYLES}>
-      <h1>You are LoggedIn</h1>
-      <h2>{user.email}</h2>
-      <Form action="/logout" method="post">
-        <button style={BUTTON_STYLES}>Logout</button>
-      </Form>
-    </div>
+    <Container>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h3">
+          Welcome, {user.first_name}!
+        </Typography>
+
+        <Typography component="h1" variant="h5">
+          Time until you get the next match:{" "}
+          {Math.floor(timeToNextSunday / 86400)} days,{" "}
+          {Math.floor((timeToNextSunday % 86400) / 3600)} hours,{" "}
+          {Math.floor((timeToNextSunday % 3600) / 60)} minutes,{" "}
+          {timeToNextSunday % 60} seconds
+        </Typography>
+      </Box>
+    </Container>
   );
 };
 
