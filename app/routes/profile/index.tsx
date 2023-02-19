@@ -1,14 +1,11 @@
-import { authenticator } from "~/services/auth.server";
-
 import React, { useEffect, useState } from "react";
 
-import { createUser, updateUser } from "~/models/user.server";
+import { updateUser } from "~/models/user.server";
 import {
   Alert,
   Autocomplete,
   Box,
   Button,
-  capitalize,
   Checkbox,
   Collapse,
   Container,
@@ -31,12 +28,12 @@ import { getUser } from "~/session.server";
 import {
   getAllInterests,
   getUserInterests,
-  updateUserInterests,
+  interestUpdateFromProfile,
 } from "~/models/interests.server";
 import {
   getAllRestaurants,
   getUserRestaurants,
-  updateUserRestaurants,
+  updateUserRestaurantPreferences,
 } from "~/models/restaurants.server";
 
 export const loader = async ({ request }: any) => {
@@ -80,20 +77,40 @@ export async function action({ request }: any) {
   const interests = formData.getAll("interests");
   const restaurants = JSON.parse(formData.get("restaurants"));
 
-  console.log("interests", interests);
-  console.log("restaurants", restaurants);
+  if (!firstName || !lastName || !interests.length || !restaurants.length) {
+    return json(
+      {
+        errors: {
+          password: "Please fill out all required fields",
+        },
+      },
+      {
+        status: 400,
+      }
+    );
+  }
 
-  // await updateUser(user.id, {
-  //   first_name: firstName,
-  //   last_name: lastName,
-  //   bio,
-  // });
-  // await updateUserInterests(user.id, interests);
-  // await updateUserRestaurants(user.id, restaurants);
+  const restaurantIds = restaurants.map((restaurant: any) => restaurant.id);
 
-  // return redirect("/dashboard");
+  await updateUser(user.id, {
+    first_name: firstName,
+    last_name: lastName,
+    bio,
+  });
 
-  return json({});
+  await interestUpdateFromProfile(user.id, interests);
+
+  await updateUserRestaurantPreferences(user.id, restaurantIds);
+
+  // on success, send a toast message
+  return json(
+    {
+      message: "Profile updated successfully",
+    },
+    {
+      status: 200,
+    }
+  );
 }
 
 export default function Profile() {
@@ -106,8 +123,10 @@ export default function Profile() {
   } = useLoaderData();
 
   const actionData = useActionData<typeof action>();
-  const [open, setOpen] = React.useState(false);
+
   const [errors, setErrors] = useState("");
+  const [success, setSuccess] = useState("");
+  const [open, setOpen] = useState(false);
 
   const submit = useSubmit();
 
@@ -120,7 +139,16 @@ export default function Profile() {
 
   useEffect(() => {
     if (actionData?.errors) {
+      setSuccess("");
       setErrors(actionData.errors.password);
+      setOpen(true);
+    }
+  }, [actionData]);
+
+  useEffect(() => {
+    if (actionData?.message) {
+      setErrors("");
+      setSuccess(actionData.message);
       setOpen(true);
     }
   }, [actionData]);
@@ -135,6 +163,27 @@ export default function Profile() {
           alignItems: "center",
         }}
       >
+        <Collapse in={open}>
+          <Alert
+            severity={errors ? "error" : "success"}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{ mb: 2 }}
+          >
+            {errors || success}
+          </Alert>
+        </Collapse>
+
         <Typography component="h1" variant="h5">
           Edit Profile
         </Typography>
@@ -228,7 +277,13 @@ export default function Profile() {
               </Grid>
               <Grid item xs={12}>
                 <Autocomplete
-                  options={allRestaurants}
+                  // options should be all restaurants minus the ones already selected and should be updated when restaurantList changes
+                  options={allRestaurants.filter(
+                    (restaurant: any) =>
+                      !restaurantList
+                        .map((restaurant: any) => restaurant.id)
+                        .includes(restaurant.id)
+                  )}
                   onChange={(event, newValue) => {
                     setRestaurantList(newValue);
                   }}
@@ -263,26 +318,6 @@ export default function Profile() {
             </Button>
           </Box>
         </Form>
-        <Collapse in={open}>
-          <Alert
-            severity="error"
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  setOpen(false);
-                }}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-            sx={{ mb: 2 }}
-          >
-            {errors}
-          </Alert>
-        </Collapse>
       </Box>
     </Container>
   );

@@ -28,11 +28,11 @@ import { StudentStanding } from "@prisma/client";
 import { useSubmit } from "@remix-run/react";
 import {
   getAllInterests,
-  updateUserInterests,
+  createUserInterests,
 } from "~/models/interests.server";
 import {
   getAllRestaurants,
-  updateUserRestaurants,
+  createUserRestaurantPreferences,
 } from "~/models/restaurants.server";
 
 export const loader = async ({ request }: any) => {
@@ -122,8 +122,8 @@ export async function action({ request }: ActionArgs) {
   });
 
   if (newUser) {
-    await updateUserInterests(newUser.id, interestIds);
-    await updateUserRestaurants(newUser.id, restaurantIds);
+    await createUserInterests(newUser.id, interestIds);
+    await createUserRestaurantPreferences(newUser.id, restaurantIds);
 
     return authenticator.logout(request, {
       redirectTo: "/login?account_created_successfully=true",
