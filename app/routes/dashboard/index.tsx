@@ -26,23 +26,21 @@ export const loader = async ({ request }: any) => {
 
   const meetups = await getUserMeetups(userId);
 
-  const match = await getMeetupMatch(userId, meetups ? meetups[0].id : "0");
-
-  const restaurant_name_meetup = await getRestaurant(
-    meetups ? meetups[0].restaurantId : "0"
-  );
-
+  if (!meetups) {
+    return {
+      user,
+      meetups,
+    };
+  }
   return {
     user,
     meetups,
-    match,
-    restaurant_name_meetup,
   };
 };
 
 const Dashboard = () => {
   // getting user from loader data
-  const { user, meetups, match, restaurant_name_meetup } = useLoaderData();
+  const { user, meetups } = useLoaderData();
 
   // make a timer that shows time to upcoming Sunday 6:00 PM in hours and minutes
   const now = new Date();
@@ -97,25 +95,6 @@ const Dashboard = () => {
             {Math.floor((timeToNextSunday % 86400) / 3600)} hours,{" "}
             {Math.floor((timeToNextSunday % 3600) / 60)} minutes,{" "}
             {timeToNextSunday % 60} seconds
-          </Typography>
-        </Paper>
-
-        <Paper
-          sx={{
-            marginTop: 2,
-            padding: 2,
-            boxShadow: 3,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="h1" variant="h5">
-            Your next match is:{" "}
-            <Link href={`/profile/${match[0].id}`}>
-              {match[0].first_name + " " + match[0].last_name}
-            </Link>{" "}
-            at {restaurant_name_meetup.name}
           </Typography>
         </Paper>
       </Box>

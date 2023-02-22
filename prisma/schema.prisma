@@ -31,6 +31,10 @@ model User {
   meetups   MeetupInfo[]
   interests Interests[]
 
+  instagram_username String?
+  phone_number       String?
+  snapchat_username  String?
+
   restaurants Restaurant[]
 }
 

@@ -66,6 +66,36 @@ export async function action({ request }: ActionArgs) {
   const standing = formData.get("standing");
   const interests = formData.getAll("interests");
   const restaurants = JSON.parse(formData.get("restaurants"));
+  const instagram = formData.get("instagram");
+  const phone = formData.get("phone");
+  const snapchat = formData.get("snapchat");
+
+  if (
+    typeof instagram !== "string" ||
+    typeof phone !== "string" ||
+    typeof snapchat !== "string"
+  ) {
+    return json(
+      { errors: { email: null, password: "Some error occured. Try again!" } },
+      { status: 400 }
+    );
+  }
+
+  // validate phone number
+  if (phone.length > 0 && !/^\d{10}$/.test(phone)) {
+    return json(
+      { errors: { email: null, password: "Invalid phone number" } },
+      { status: 400 }
+    );
+  }
+
+  // either instagram, snapchat, or phone number must be provided
+  if (instagram.length === 0 && snapchat.length === 0 && phone.length === 0) {
+    return json(
+      { errors: { email: null, password: "Provide at least one contact" } },
+      { status: 400 }
+    );
+  }
 
   if (typeof firstName !== "string" || firstName.length === 0) {
     return json(
@@ -162,7 +192,7 @@ export default function CreateProfile() {
   const actionData = useActionData<typeof action>();
   const [open, setOpen] = React.useState(false);
   const [errors, setErrors] = useState("");
-  const [restaurantsList, setRestaurantsList] = useState({});
+  const [restaurantsList, setRestaurantsList] = useState([]);
 
   const submit = useSubmit();
 
@@ -170,6 +200,8 @@ export default function CreateProfile() {
     if (actionData?.errors) {
       setErrors(actionData.errors.password);
       setOpen(true);
+      // scroll to top
+      window.scrollTo(0, 0);
     }
   }, [actionData]);
 
@@ -183,6 +215,26 @@ export default function CreateProfile() {
           alignItems: "center",
         }}
       >
+        <Collapse in={open}>
+          <Alert
+            severity="error"
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{ mb: 2 }}
+          >
+            {errors}
+          </Alert>
+        </Collapse>
         <Form
           method="post"
           onSubmit={(e) => {
@@ -255,6 +307,40 @@ export default function CreateProfile() {
                   autoComplete="bio"
                 />
               </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  name="instagram"
+                  label="Instagram"
+                  id="instagram"
+                  rows={2}
+                  autoComplete="instagram"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  name="phone"
+                  label="Phone"
+                  id="phone"
+                  rows={2}
+                  autoComplete="phone"
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  name="snapchat"
+                  label="Snapchat"
+                  id="snapchat"
+                  rows={2}
+                  autoComplete="snapchat"
+                />
+              </Grid>
+
               <Grid item xs={12}>
                 <StandingSelect />
               </Grid>
@@ -286,7 +372,10 @@ export default function CreateProfile() {
 
               <Grid item xs={12}>
                 <Autocomplete
-                  options={restaurants}
+                  // options should be the restaurants minus the ones the user already selected
+                  options={restaurants.filter(
+                    (restaurant: any) => !restaurantsList.includes(restaurant)
+                  )}
                   multiple
                   onChange={(event, newValue) => {
                     setRestaurantsList(newValue);
@@ -321,26 +410,6 @@ export default function CreateProfile() {
           </Box>
           {/* <input type="hidden" name="redirectTo" value={redirectTo} /> */}
         </Form>
-        <Collapse in={open}>
-          <Alert
-            severity="error"
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  setOpen(false);
-                }}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-            sx={{ mb: 2 }}
-          >
-            {errors}
-          </Alert>
-        </Collapse>
       </Box>
     </Container>
   );
