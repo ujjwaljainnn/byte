@@ -7,11 +7,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./session.server";
 import Header from "./header";
+import TemporaryDrawer from "./routes/dashboard/temporary-drawer";
 
 export const links: LinksFunction = () => {
   return [
@@ -37,6 +39,8 @@ export async function loader({ request }: LoaderArgs) {
 }
 
 export default function App() {
+  const { user } = useLoaderData();
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -45,6 +49,7 @@ export default function App() {
       </head>
       <body className="h-full">
         <Header />
+        {user ? <TemporaryDrawer /> : null}
         <Outlet />
         <ScrollRestoration />
         <Scripts />
