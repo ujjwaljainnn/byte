@@ -18,6 +18,7 @@ import {
   getUserRestaurants,
 } from "~/models/restaurants.server";
 import { getUserById } from "~/models/user.server";
+import { Instagram, Phone } from "@mui/icons-material";
 
 export const loader = async ({ request }: any) => {
   const loggedInUser = await getUser(request);
@@ -66,7 +67,6 @@ export default function Profile() {
     <Container component="main" maxWidth="xs">
       <Box
         sx={{
-          marginTop: 8,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -99,6 +99,17 @@ export default function Profile() {
                 Bio: {user.bio}
               </Typography>
             </Grid>
+            {user.instagram_username && (
+              <Grid item xs={12} sm={6}>
+                <Instagram /> : {user.instagram_username}
+              </Grid>
+            )}
+            {user.phone_number && (
+              <Grid item xs={12} sm={6}>
+                <Phone /> : {user.phone_number}
+              </Grid>
+            )}
+
             <Grid item xs={12}>
               <Divider />
             </Grid>
