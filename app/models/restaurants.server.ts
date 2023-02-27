@@ -49,3 +49,11 @@ export async function updateUserRestaurantPreferences(
     data: { restaurants: { connect: restaurants.map((id) => ({ id })) } },
   });
 }
+
+export async function createRestaurant(name: Restaurant["name"]) {
+  return prisma.restaurant.create({
+    data: {
+      name,
+    },
+  });
+}

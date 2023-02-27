@@ -70,7 +70,7 @@ const LoggedInHeaderItems = ({ user }: { user: User }) => {
         ))}
 
         {user.accountType === UserType.ADMIN && (
-          <HeaderItem title={"Programs"} link={"/programs"} key={"Programs"} />
+          <HeaderItem title={"Create"} link={"/create"} key={"Create"} />
         )}
 
         <LogOutButton />
