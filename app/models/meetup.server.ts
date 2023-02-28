@@ -4,10 +4,6 @@ import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 
-export async function getAllMeetups() {
-  return prisma.meetupInfo.findMany();
-}
-
 export async function getMeetup(id: MeetupInfo["id"]) {
   return prisma.meetupInfo.findUnique({ where: { id } });
 }
@@ -48,4 +44,19 @@ export async function getMeetupMatch(
   return prisma.meetupInfo
     .findUnique({ where: { id: meetupId } })
     .users({ where: { id: { not: id } } });
+}
+
+// first get all the meetups and then fetch the users of each meetup
+// then return all the meetups with their users
+export async function getAllMeetups() {
+  const meetups = await prisma.meetupInfo.findMany();
+  const users = await Promise.all(
+    meetups.map((meetup) => getMeetupUsers(meetup.id))
+  );
+  return meetups.map((meetup, i) => ({ ...meetup, users: users[i] }));
+}
+
+// function that fetches all the users for a particular meetup
+export async function getMeetupUsers(meetupId: MeetupInfo["id"]) {
+  return prisma.meetupInfo.findUnique({ where: { id: meetupId } }).users();
 }
