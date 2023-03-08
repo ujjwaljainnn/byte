@@ -1,14 +1,16 @@
 // file: app/routes/dashboard.js
 
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Form } from "@remix-run/react";
 import { authenticator } from "app/services/auth.server";
-import { Box, Container, Link, Paper, Typography } from "@mui/material";
+import { Box, Button, Container, Grid, Link, Paper, Typography } from "@mui/material";
 import { getUserById } from "~/models/user.server";
 import { getUserId } from "~/session.server";
 
 import React, { useState } from "react";
-import { getMeetupMatch, getUserMeetups } from "~/models/meetup.server";
+import { getMeetupMatch, getUserMeetups, updateMeetupStatus } from "~/models/meetup.server";
 import { getRestaurant } from "~/models/restaurants.server";
+import { ActionArgs, json, redirect } from "@remix-run/server-runtime";
+import { MeetupStatus } from "@prisma/client";
 
 export const loader = async ({ request }: any) => {
   // fetch user id from session
@@ -56,6 +58,34 @@ export const loader = async ({ request }: any) => {
     restaurant_name_meetup,
   };
 };
+
+export async function action({ request }: ActionArgs) {
+
+  const user = await getUserId(request);
+
+  if (!user) {
+    return redirect("/login");
+  }
+
+  const formData = await request.formData();
+
+  const updateMeetup = formData.get("changeMeetupStatus");
+  const currentMeetup = formData.get("currentMeetup");
+
+  console.log("updateMeetup", updateMeetup);
+  console.log("currentMeetup", currentMeetup);
+
+  // return json({});
+  if (updateMeetup === "complete") {
+    return await updateMeetupStatus(currentMeetup, MeetupStatus["COMPLETED"]);
+  }
+  else if (updateMeetup === "canceled") {
+    return await updateMeetupStatus(formData.get("currentMeetup"), "CANCELLED");
+  }
+  else {
+    return await updateMeetupStatus(formData.get("currentMeetup"), "PENDING");
+  }
+}
 
 const Dashboard = () => {
   // getting user from loader data
@@ -134,6 +164,54 @@ const Dashboard = () => {
               </Link>{" "}
               at {restaurant_name_meetup.name}
             </Typography>
+            <Grid container spacing={2} justifyContent="center">
+              <Grid item textAlign="center">
+                <Form method="post">
+                  <input type="hidden" name="changeMeetupStatus" value="complete" />
+                  <input type="hidden" name="currentMeetup" value={meetups[0].id} />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2}}
+                    disabled = {meetups[0].status === "COMPLETED"}
+                  >
+                    Complete
+                  </Button>
+                </Form>
+              </Grid>
+              <Grid item textAlign="center">
+                <Form method="post">
+                  <input type="hidden" name="changeMeetupStatus" value="canceled" />
+                  <input type="hidden" name="currentMeetup" value={meetups[0].id} />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2}}
+                    disabled = {meetups[0].status === "CANCELLED"}
+                    
+                  >
+                    Canceled
+                  </Button>
+                </Form>
+              </Grid>
+              <Grid item textAlign="center">
+                <Form method="post">
+                  <input type="hidden" name="changeMeetupStatus" value="pending" />
+                  <input type="hidden" name="currentMeetup" value={meetups[0].id} />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
+                    disabled = {meetups[0].status === "PENDING"}
+                  >
+                    Pending
+                  </Button>
+                </Form>
+              </Grid>
+            </Grid>
           </Paper>
         ) : (
           <Paper
