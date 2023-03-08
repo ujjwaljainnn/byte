@@ -1,4 +1,4 @@
-import type { Interests, MeetupInfo, User } from "@prisma/client";
+import type { Interests, MeetupInfo, MeetupStatus, User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
@@ -31,7 +31,14 @@ export async function updateMeetup(id: MeetupInfo["id"], meetup: MeetupInfo) {
   });
 }
 
-// function that deletes a meetup
+// function that updates the status of a meetup
+export async function updateMeetupStatus(id: MeetupInfo["id"], status: MeetupStatus) {
+  return prisma.meetupInfo.update({
+    where: { id },
+    data: { status },
+  });
+}
+// function that deletes a meetups
 export async function deleteMeetup(id: MeetupInfo["id"]) {
   return prisma.meetupInfo.delete({ where: { id } });
 }
