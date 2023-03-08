@@ -140,7 +140,6 @@ export async function action({ request }: ActionArgs) {
   console.log("interestIds", interestIds);
   console.log("restaurantIds", restaurantIds);
 
-  // return json({});
 
   const newUser = await createUser({
     email: user._json.email,

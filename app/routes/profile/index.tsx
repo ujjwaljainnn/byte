@@ -142,6 +142,8 @@ export default function Profile() {
       setSuccess("");
       setErrors(actionData.errors.password);
       setOpen(true);
+      // scroll to top
+      window.scrollTo(0, 0);
     }
   }, [actionData]);
 
@@ -150,6 +152,8 @@ export default function Profile() {
       setErrors("");
       setSuccess(actionData.message);
       setOpen(true);
+      // scroll to top
+      window.scrollTo(0, 0);
     }
   }, [actionData]);
 
