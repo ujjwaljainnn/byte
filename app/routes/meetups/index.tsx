@@ -1,4 +1,3 @@
-import { Dangerous } from "@mui/icons-material";
 import {
   Button,
   Container,
@@ -10,11 +9,11 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { MeetupInfo, UserType } from "@prisma/client";
+import { UserType } from "@prisma/client";
 import { useLoaderData } from "@remix-run/react";
 import { redirect } from "@remix-run/server-runtime";
 import { getUser } from "~/session.server";
-import { getAllMeetups, getMeetup } from "~/models/meetup.server";
+import { getAllMeetups } from "~/models/meetup.server";
 import React from "react";
 import { Link } from "@mui/material";
 
@@ -73,7 +72,9 @@ export default function Meetups() {
                   </TableCell>
                   <TableCell>{meetup.status}</TableCell>
                   <TableCell>
-                    <Link href={`/meetups/${meetup.id}`}>View Meetup</Link>
+                    <Button>
+                      <Link href={`/meetups/${meetup.id}`}>View Meetup</Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
