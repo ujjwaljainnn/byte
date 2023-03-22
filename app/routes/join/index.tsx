@@ -1,6 +1,6 @@
 // file: app/routes/index.js
 
-import { Box, Container, Grid } from "@mui/material";
+import { Box, Typography, Container, Grid, Icon } from "@mui/material";
 import { Form, useSearchParams } from "@remix-run/react";
 import { SocialsProvider } from "remix-auth-socials";
 
@@ -27,7 +27,7 @@ const BUTTON_STYLES = {
 export default function Join() {
   const [searchParams] = useSearchParams();
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <Box
         sx={{
           marginTop: 8,
@@ -39,12 +39,14 @@ export default function Join() {
             subError="Please register using Vanderbilt email."
           />
         )}
+        <Typography variant="h2">Create your account</Typography>
+        <Typography align="center" variant="h6" sx={{ marginTop: 2 }}> Sign up with your Vanderbilt email </Typography>
         <Form
           method="post"
           action={`/auth/${SocialsProvider.GOOGLE}`}
           style={CONTAINER_STYLES}
         >
-          <button style={BUTTON_STYLES}>Login with Google</button>
+          <button><img src="/signupgoogle.svg" /></button>
         </Form>
       </Box>
     </Container>

@@ -3,9 +3,12 @@ import { authenticator } from "~/services/auth.server";
 import React, { useEffect, useState } from "react";
 
 import { createUser } from "~/models/user.server";
+import Link from '@mui/material/Link';
+
 import {
   Alert,
   Autocomplete,
+  Avatar,
   Box,
   Button,
   capitalize,
@@ -22,7 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ActionArgs, json } from "@remix-run/server-runtime";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import CloseIcon from "@mui/icons-material/Close";
 import { StudentStanding } from "@prisma/client";
 import { useSubmit } from "@remix-run/react";
@@ -234,6 +237,7 @@ export default function CreateProfile() {
             {errors}
           </Alert>
         </Collapse>
+        <Typography sx={{ mb: 2 }} component="h3" variant="h3"> Create your profile </Typography>
         <Form
           method="post"
           onSubmit={(e) => {
@@ -249,6 +253,26 @@ export default function CreateProfile() {
                 <Typography component="h5" variant="h5">
                   Personal Information
                 </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <input
+                  accept="image/*"
+                  id="contained-button-file"
+                  multiple= {false}
+                  type="file"
+                />
+                <label htmlFor="contained-button-file">
+                  <IconButton>
+                    <Avatar
+                      src="/images/blankprofile.svg"
+                      style={{
+                        margin: "10px",
+                        width: "60px",
+                        height: "60px",
+                      }}
+                    />
+                  </IconButton>
+                </label>
               </Grid>
 
               <Grid item xs={12} sm={6}>
@@ -401,10 +425,8 @@ export default function CreateProfile() {
               Sign Up
             </Button>
 
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link to="/login">Already have an account? Log in</Link>
-              </Grid>
+            <Grid container justifyContent="center">
+              <Typography align="center" variant="h6"> Already have an account? <Link color="primary" href="/login">Log in</Link></Typography>
             </Grid>
           </Box>
           {/* <input type="hidden" name="redirectTo" value={redirectTo} /> */}

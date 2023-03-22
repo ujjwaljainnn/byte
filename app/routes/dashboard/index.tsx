@@ -2,7 +2,8 @@
 
 import { useLoaderData, Form } from "@remix-run/react";
 import { authenticator } from "app/services/auth.server";
-import { Box, Button, Container, Grid, Link, Paper, Typography } from "@mui/material";
+import { Box, Button, Container, Divider, Grid, Link, List, ListItem, ListItemText, ListSubheader, Paper, Stack, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import { getUserById } from "~/models/user.server";
 import { getUserId } from "~/session.server";
 
@@ -91,6 +92,15 @@ const Dashboard = () => {
   // getting user from loader data
   const { user, meetups, match, restaurant_name_meetup } = useLoaderData();
 
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.h2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  }));
+
+
   // make a timer that shows time to upcoming Sunday 6:00 PM in hours and minutes
   const now = new Date();
   const nextSunday = new Date(
@@ -125,27 +135,36 @@ const Dashboard = () => {
           alignItems: "center",
         }}
       >
+
         <Typography component="h1" variant="h3">
-          Welcome, {user.first_name}!
+          Welcome, {user.first_name ? user.first_name : "user"}!
         </Typography>
-        <Paper
-          sx={{
-            marginTop: 2,
-            padding: 2,
-            boxShadow: 3,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="h1" variant="h5">
-            Time until you get the next match:{" "}
-            {Math.floor(timeToNextSunday / 86400)} days,{" "}
-            {Math.floor((timeToNextSunday % 86400) / 3600)} hours,{" "}
-            {Math.floor((timeToNextSunday % 3600) / 60)} minutes,{" "}
-            {timeToNextSunday % 60} seconds
-          </Typography>
-        </Paper>
+
+        <div>
+          <Typography sx={{ marginTop: 10 }} align="center" component="h1" variant="h5"> Time until you get the next match: </Typography>
+          <Stack
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem />}
+            spacing={4}
+            sx={{
+              marginTop: 2,
+              padding: 2,
+            }}
+          >
+            <Item>{Math.floor(timeToNextSunday / 86400)}</Item>
+            <Item>{Math.floor((timeToNextSunday % 86400) / 3600)}</Item>
+            <Item>{Math.floor((timeToNextSunday % 3600) / 60)}</Item>
+            <Item>{timeToNextSunday % 60}</Item>
+          </Stack>
+        </div>
+        <div>
+          <Stack direction="row" spacing={10} >
+            <Typography variant="h6">Days</Typography>
+            <Typography variant="h6">Hours</Typography>
+            <Typography variant="h6">Minutes</Typography>
+            <Typography variant="h6">Seconds</Typography>
+          </Stack>
+        </div>
         {meetups.length > 0 ? (
           <Paper
             sx={{
@@ -173,8 +192,8 @@ const Dashboard = () => {
                     type="submit"
                     fullWidth
                     variant="contained"
-                    sx={{ mt: 3, mb: 2}}
-                    disabled = {meetups[0].status === "COMPLETED"}
+                    sx={{ mt: 3, mb: 2 }}
+                    disabled={meetups[0].status === "COMPLETED"}
                   >
                     Complete
                   </Button>
@@ -188,9 +207,9 @@ const Dashboard = () => {
                     type="submit"
                     fullWidth
                     variant="contained"
-                    sx={{ mt: 3, mb: 2}}
-                    disabled = {meetups[0].status === "CANCELLED"}
-                    
+                    sx={{ mt: 3, mb: 2 }}
+                    disabled={meetups[0].status === "CANCELLED"}
+
                   >
                     Canceled
                   </Button>
@@ -205,7 +224,7 @@ const Dashboard = () => {
                     fullWidth
                     variant="contained"
                     sx={{ mt: 3, mb: 2 }}
-                    disabled = {meetups[0].status === "PENDING"}
+                    disabled={meetups[0].status === "PENDING"}
                   >
                     Pending
                   </Button>
@@ -214,9 +233,11 @@ const Dashboard = () => {
             </Grid>
           </Paper>
         ) : (
+
+
           <Paper
             sx={{
-              marginTop: 2,
+              marginTop: 5,
               padding: 2,
               boxShadow: 3,
               display: "flex",
@@ -224,10 +245,16 @@ const Dashboard = () => {
               alignItems: "center",
             }}
           >
-            <Typography component="h1" variant="h5">
-              You have no upcoming meetups
-            </Typography>
+            <List
+              sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+              subheader={<ListSubheader>Your upcoming meetups:</ListSubheader>}
+            >
+              <ListItem>
+                <ListItemText primary="No upcoming meetups" />
+              </ListItem>
+            </List>
           </Paper>
+
         )}
       </Box>
     </Container>
